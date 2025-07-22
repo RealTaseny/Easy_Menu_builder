@@ -95,7 +95,7 @@ QString CodeGenerator::generateMenuCode(const QList<MenuItemEditor::ItemData>& i
                 code += "),\n";
             }
             else if (item.type == "Application") {
-                QString argsStr = item.argsName.isEmpty() ? "nullptr" : "&" + item.argsName;
+                QString argsStr = item.argsName.isEmpty() ? "nullptr" : item.argsName;
                 QString funcStr = item.funcName.isEmpty() ? "nullptr" : item.funcName;
 
                 code += QString("    menuItem::createApp(\"%1\", %2, %3),\n")
