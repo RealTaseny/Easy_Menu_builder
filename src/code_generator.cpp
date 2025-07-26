@@ -71,10 +71,10 @@ QString CodeGenerator::generateMenuCode(const QList<MenuItemEditor::ItemData>& i
 }
 
 void CodeGenerator::generateChildrenArrayRecursive(const QString& parentName,
-                                    const QMap<QString, QList<MenuItemEditor::ItemData>>& childrenMap,
-                                    const QMap<QString, MenuItemEditor::ItemData>& itemMap,
-                                    QStringList& arrayCodeList,
-                                    QSet<QString>& generatedArrays)
+                                                   const QMap<QString, QList<MenuItemEditor::ItemData>>& childrenMap,
+                                                   const QMap<QString, MenuItemEditor::ItemData>& itemMap,
+                                                   QStringList& arrayCodeList,
+                                                   QSet<QString>& generatedArrays)
 {
     if (!childrenMap.contains(parentName)) return;
 
@@ -108,50 +108,57 @@ void CodeGenerator::generateChildrenArrayRecursive(const QString& parentName,
             else
             {
                 arrayCode += QString("    menuItem::createNormalItem(\"%1\", nullptr, 0),\n")
-                             .arg(child.name);
+                    .arg(child.name);
             }
         }
-        else if (child.type == "Changeable") {
+        else if (child.type == "Changeable")
+        {
             arrayCode += QString("    menuItem::createChangeableItem<%1>(\"%2\", g_menu_vars.%3, %4, %5, %6, ")
-                    .arg(child.dataType)
-                    .arg(child.name)
-                    .arg(child.varName)
-                    .arg(child.minValue)
-                    .arg(child.maxValue)
-                    .arg(child.step);
+                         .arg(child.dataType)
+                         .arg(child.name)
+                         .arg(child.varName)
+                         .arg(child.minValue)
+                         .arg(child.maxValue)
+                         .arg(child.step);
 
-            if (child.hasCallback && !child.callbackCode.isEmpty()) {
+            if (child.hasCallback && !child.callbackCode.isEmpty())
+            {
                 arrayCode += QString("[](const %1 value) {\n        /* %2 */\n    }")
-                        .arg(child.dataType)
-                        .arg(child.callbackCode);
+                             .arg(child.dataType)
+                             .arg(child.callbackCode);
             }
-            else {
+            else
+            {
                 arrayCode += "nullptr";
             }
             arrayCode += "),\n";
         }
-        else if (child.type == "bool") {
+        else if (child.type == "bool")
+        {
             arrayCode += QString("    menuItem::createToggle(\"%1\", &g_menu_vars.%2, ")
-                    .arg(child.name)
-                    .arg(child.varName);
+                         .arg(child.name)
+                         .arg(child.varName);
 
-            if (child.hasCallback && !child.callbackCode.isEmpty()) {
+            if (child.hasCallback && !child.callbackCode.isEmpty())
+            {
                 arrayCode += QString("[](const bool state) {\n        /* %1 */\n    }")
-                        .arg(child.callbackCode);
+                    .arg(child.callbackCode);
             }
-            else {
+            else
+            {
                 arrayCode += "nullptr";
             }
             arrayCode += "),\n";
         }
-        else if (child.type == "Application") {
+        else if (child.type == "Application")
+        {
             QString argsStr = child.argsName.isEmpty() ? "nullptr" : child.argsName;
             QString funcStr = child.funcName.isEmpty() ? "nullptr" : child.funcName;
 
             arrayCode += QString("    menuItem::createApp(\"%1\", %2, %3),\n")
-                    .arg(child.name)
-                    .arg(argsStr)
-                    .arg(funcStr);
+                         .arg(child.name)
+                         .arg(argsStr)
+                         .arg(funcStr);
         }
     }
 
@@ -166,53 +173,52 @@ QString CodeGenerator::generateCallbackCode(const QList<MenuItemEditor::ItemData
 
     for (const auto& item : items)
     {
-            if (item.type == "Application")
+        if (item.type == "Application")
+        {
+            QString funcName;
+            if (!item.funcName.isEmpty())
             {
-                QString funcName;
-                if (!item.funcName.isEmpty())
-                {
-                    funcName = item.funcName;
-                }
-                else
-                {
-                    QString itemNameNoSpaces = item.name;
-                    itemNameNoSpaces.replace(" ", "");
-                    funcName = itemNameNoSpaces.toLower() + "App";
-                }
+                funcName = item.funcName;
+            }
+            else
+            {
+                QString itemNameNoSpaces = item.name;
+                itemNameNoSpaces.replace(" ", "");
+                funcName = itemNameNoSpaces.toLower() + "App";
+            }
 
-                code += QString("void %1(void** args) {\n    /* %2 */\n}\n\n")
-                        .arg(funcName)
-                        .arg(item.callbackCode);
-
+            code += QString("void %1(void** args) {\n    /* %2 */\n}\n\n")
+                    .arg(funcName)
+                    .arg(item.callbackCode);
         }
     }
 
     for (const auto& item : items)
     {
-            if (item.type == "Application")
+        if (item.type == "Application")
+        {
+            QString funcName;
+            if (!item.funcName.isEmpty())
             {
-                QString funcName;
-                if (!item.funcName.isEmpty())
-                {
-                    funcName = item.funcName;
-                }
-                else
-                {
-                    QString itemNameNoSpaces = item.name;
-                    itemNameNoSpaces.replace(" ", "");
-                    funcName = itemNameNoSpaces.toLower() + "App";
-                }
-
-                QString argName = item.argsName.isEmpty() ? funcName + "Args" : item.argsName;
-
-                if (code.contains(argName))
-                {
-                    continue;
-                }
-
-                code += QString("// %1 回调函数参数指针数组\n").arg(item.funcName);
-                code += QString("void* %1[] = {\n       nullptr // 请自行添加参数指针\n};\n\n").arg(argName);
+                funcName = item.funcName;
             }
+            else
+            {
+                QString itemNameNoSpaces = item.name;
+                itemNameNoSpaces.replace(" ", "");
+                funcName = itemNameNoSpaces.toLower() + "App";
+            }
+
+            QString argName = item.argsName.isEmpty() ? funcName + "Args" : item.argsName;
+
+            if (code.contains(argName))
+            {
+                continue;
+            }
+
+            code += QString("// %1 回调函数参数指针数组\n").arg(item.funcName);
+            code += QString("void* %1[] = {\n       nullptr // 请自行添加参数指针\n};\n\n").arg(argName);
+        }
     }
 
     return code;
@@ -425,16 +431,20 @@ void CodeGenerator::generateMenuEmulatorCode(const QList<MenuItemEditor::ItemDat
     code += generateMenuCode(items);
     code += "\n";
 
-    code += "\n #ifdef __cplusplus\n \n extern \"C\" {\n #endif\n Navigator* getNavigator() \n { \n return new Navigator(mainMenu); \n }\n #ifdef __cplusplus \n }\n #endif\n\n";
+    code +=
+        "\n #ifdef __cplusplus\n \n extern \"C\" {\n #endif\n Navigator* getNavigator() \n { \n return new Navigator(mainMenu); \n }\n #ifdef __cplusplus \n }\n #endif\n\n";
 
     QString cppFilePath = "/home/taseny/Easy_Menu_Builder/lib/menu_emulator_lib/src/generated_code.cpp";
 
     QFile cppFile(cppFilePath);
-    if (cppFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (cppFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
         QTextStream out(&cppFile);
         out << code;
         cppFile.close();
-    } else {
+    }
+    else
+    {
         qWarning() << "无法打开文件保存：" << cppFile.errorString();
     }
 }
@@ -462,11 +472,14 @@ void CodeGenerator::generateMenuEmulatorHeader()
     QString headerFilePath = "/home/taseny/Easy_Menu_Builder/lib/menu_emulator_lib/include/generated_code.h";
 
     QFile headerFile(headerFilePath);
-    if (headerFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (headerFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
         QTextStream out(&headerFile);
         out << code;
         headerFile.close();
-    } else {
+    }
+    else
+    {
         qWarning() << "无法打开文件保存：" << headerFile.errorString();
     }
 }

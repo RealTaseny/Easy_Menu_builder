@@ -46,17 +46,16 @@ public:
     ItemData getItemData() const;
 
 signals:
-    void dataChanged(); // 当编辑器中的数据发生变化时发出
-    void itemModified(const ItemData& data); // 添加新的信号用于实时同步数据
+    void dataChanged();
+    void itemModified(const ItemData& data);
 
 private slots:
     void onTypeChanged(int index);
     void onDataChanged();
-    void onDataTypeChanged(int index); // 数据类型变化槽函数
-    void emitModifiedData(); // 添加新的槽函数
-    void onGenerateCodePreview(); // 生成代码预览
-    void onSaveCodeToFile(); // 保存代码到文件
-    void onCallbackToggled(bool checked); // 回调复选框切换
+    void onDataTypeChanged(int index);
+    void emitModifiedData();
+    void onGenerateCodePreview();
+    void onCallbackToggled(bool checked);
 
 private:
     void setupUI();
@@ -66,10 +65,10 @@ private:
 
     QLineEdit* nameEdit;
     QLineEdit* varNameEdit;
-    QLineEdit* funcNameEdit; // 应用类型的函数名输入框
-    QLineEdit* argsNameEdit; // 应用类型的参数名输入框
-    QWidget* appWidget; // 应用类型专用控件容器
-    QLabel* varNameLabel; // 变量名标签
+    QLineEdit* funcNameEdit;
+    QLineEdit* argsNameEdit;
+    QWidget* appWidget;
+    QLabel* varNameLabel;
     QComboBox* typeCombo;
     QComboBox* dataTypeCombo;
     QDoubleSpinBox* initialValueEdit;
@@ -79,10 +78,9 @@ private:
     QCheckBox* callbackCheck;
     QTextEdit* callbackEdit;
     QWidget* changeableWidget;
-    QLabel* functionParamsLabel; // 函数参数提示标签
-    QPushButton* codePreviewButton; // 代码预览按钮
-    QTextEdit* codePreviewEdit; // 代码预览文本框
-    QPushButton* saveCodeButton; // 保存代码按钮
+    QLabel* functionParamsLabel;
+    QPushButton* codePreviewButton;
+    QTextEdit* codePreviewEdit;
 
     ItemData currentData; // 存储当前数据
     bool isRootNode = false;

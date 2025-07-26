@@ -163,7 +163,7 @@ void MenuBuilderWindow::onRemoveItem()
         return;
     }
     auto* current = menuTree->currentItem();
-    if (!current) return; // Don't remove root item
+    if (!current) return;
 
     if (!current->parent())
     {
@@ -216,9 +216,9 @@ void MenuBuilderWindow::onItemSelected(QTreeWidgetItem* current)
     }
 }
 
-void MenuBuilderWindow::onGenerateCode()
+void MenuBuilderWindow::onUpdateEmulator()
 {
-    QString code;
+    QString code = "";
 
     // 检查项目是否存在
     if (!hasActiveProject())
@@ -241,38 +241,302 @@ void MenuBuilderWindow::onGenerateCode()
     saveMenuTree(menuTree->topLevelItem(0), menuArray);
     parseMenuTree(menuArray, items);
 
-    // 包含头文件
-    code += "#include \"menu.h\"\n";
-    code += "#include <cstdint>\n\n";
-
-    code += "using namespace Menu;\n\n";
-
-    // 生成结构体代码
-    code += "// 生成的变量定义\n";
-    code += CodeGenerator::generateStructCode(items);
-    code += "\n";
-
-    // 生成回调函数代码
-    code += "// 生成的回调函数和参数指针数组\n";
-    code += CodeGenerator::generateCallbackCode(items);
-    code += "\n";
-
-    // 生成菜单项代码
-    code += "// 生成的菜单项定义\n";
-    code += CodeGenerator::generateMenuCode(items);
-    code += "\n";
-
-    // 添加导航器初始化代码
-    code += "// 菜单导航器初始化\n";
-    code += "Navigator* navigator = new Menu::Navigator(mainMenu);\n";
-
-    codePreview->setText(code);
-
     CodeGenerator::generateMenuEmulatorHeader();
 
     CodeGenerator::generateMenuEmulatorCode(items);
 
     emit menuStructureUpdated(items);
+}
+
+void MenuBuilderWindow::onGenerateCppCode()
+{
+    QString sourceCode;
+
+    // 检查项目是否存在
+    if (!hasActiveProject())
+    {
+        QMessageBox::warning(this, tr("[WARNING]"), tr("请先新建或加载一个项目!"));
+        return;
+    }
+
+    // 检查菜单树是否有内容
+    if (menuTree->topLevelItemCount() == 0)
+    {
+        sourceCode = "// 菜单树为空，请先创建菜单项";
+        codePreview->setText(sourceCode);
+        return;
+    }
+
+    QString headerCode = "";
+
+    headerCode += "#ifndef GENERATED_CODE_H\n";
+    headerCode += "#define GENERATED_CODE_H\n\n";
+
+    headerCode += "#include \"menu_navigator.h\"\n\n";
+
+    headerCode += "extern Menu::Navigator *navigator;\n\n";
+
+    headerCode += "#endif //GENERATED_CODE_H\n";
+
+    QString headerFileName = QFileDialog::getSaveFileName(this,
+                                                          tr("保存头文件"), "generated_header.h",
+                                                          tr("C HeaderFile (*.h);;所有文件 (*)"), nullptr,
+                                                          QFileDialog::DontConfirmOverwrite);
+
+    if (!headerFileName.isEmpty() && !headerFileName.endsWith(".h", Qt::CaseInsensitive))
+    {
+        headerFileName += ".h";
+    }
+
+    if (!headerFileName.isEmpty() && QFile::exists(headerFileName))
+    {
+        QMessageBox::StandardButton reply = QMessageBox::question(this,
+                                                                  tr("确认覆盖"),
+                                                                  tr("文件 %1 已存在，是否覆盖?").arg(headerFileName),
+                                                                  QMessageBox::Yes | QMessageBox::No);
+
+        if (reply != QMessageBox::Yes)
+        {
+            return;
+        }
+    }
+
+    if (headerFileName.isEmpty())
+        return;
+
+    QFile headerFile(headerFileName);
+    if (headerFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream out(&headerFile);
+        out << headerCode;
+        headerFile.close();
+    }
+    else
+    {
+        qWarning() << "无法打开文件保存：" << headerFile.errorString();
+        // return;
+    }
+
+    // 收集所有菜单项数据
+    QList<MenuItemEditor::ItemData> items;
+    QJsonArray menuArray;
+    saveMenuTree(menuTree->topLevelItem(0), menuArray);
+    parseMenuTree(menuArray, items);
+
+    // 包含头文件
+    sourceCode += "#include \"menu_navigator.h\"\n";
+    sourceCode += "#include <cstdint>\n\n";
+
+    sourceCode += "using namespace Menu;\n\n";
+
+    // 生成结构体代码
+    sourceCode += "// 生成的变量定义\n";
+    sourceCode += CodeGenerator::generateStructCode(items);
+    sourceCode += "\n";
+
+    // 生成回调函数代码
+    sourceCode += "// 生成的回调函数和参数指针数组\n";
+    sourceCode += CodeGenerator::generateCallbackCode(items);
+    sourceCode += "\n";
+
+    // 生成菜单项代码
+    sourceCode += "// 生成的菜单项定义\n";
+    sourceCode += CodeGenerator::generateMenuCode(items);
+    sourceCode += "\n";
+
+    // 添加导航器初始化代码
+    sourceCode += "// 菜单导航器初始化\n";
+    sourceCode += "Navigator* navigator = new Navigator(mainMenu);\n";
+
+    QString sourceFileName = QFileDialog::getSaveFileName(this,
+                                                          tr("保存源文件"), "generated_code.cpp",
+                                                          tr("CPP SourceFile (*.cpp);;所有文件 (*)"), nullptr,
+                                                          QFileDialog::DontConfirmOverwrite);
+
+    if (!sourceFileName.isEmpty() && !sourceFileName.endsWith(".cpp", Qt::CaseInsensitive))
+    {
+        sourceFileName += ".cpp";
+    }
+
+    if (!sourceFileName.isEmpty() && QFile::exists(sourceFileName))
+    {
+        QMessageBox::StandardButton reply = QMessageBox::question(this,
+                                                                  tr("确认覆盖"),
+                                                                  tr("文件 %1 已存在，是否覆盖?").arg(sourceFileName),
+                                                                  QMessageBox::Yes | QMessageBox::No);
+
+        if (reply != QMessageBox::Yes)
+        {
+            return;
+        }
+    }
+
+    if (sourceFileName.isEmpty())
+        return;
+
+    QFile sourceFile(sourceFileName);
+    if (sourceFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream out(&sourceFile);
+        out << sourceCode;
+        sourceFile.close();
+    }
+    else
+    {
+        qWarning() << "无法打开文件保存：" << sourceFile.errorString();
+    }
+}
+
+void MenuBuilderWindow::onGenerateCCode()
+{
+    QString sourceCode;
+
+    // 检查项目是否存在
+    if (!hasActiveProject())
+    {
+        QMessageBox::warning(this, tr("[WARNING]"), tr("请先新建或加载一个项目!"));
+        return;
+    }
+
+    // 检查菜单树是否有内容
+    if (menuTree->topLevelItemCount() == 0)
+    {
+        sourceCode = "// 菜单树为空，请先创建菜单项";
+        codePreview->setText(sourceCode);
+        return;
+    }
+
+    QString headerCode = "";
+
+    headerCode += "#ifndef GENERATED_CODE_H\n";
+    headerCode += "#define GENERATED_CODE_H\n\n";
+
+    headerCode += "#ifdef __cplusplus\n";
+    headerCode += "extern \"C\" {\n";
+    headerCode += "#endif\n\n";
+    headerCode += "void* getMainItem();\n\n";
+    headerCode += "#ifdef __cplusplus\n";
+    headerCode += "}\n";
+    headerCode += "#endif\n";
+
+    headerCode += "#endif //GENERATED_CODE_H\n";
+
+    QString headerFileName = QFileDialog::getSaveFileName(this,
+                                                          tr("保存头文件"), "generated_header.h",
+                                                          tr("C HeaderFile (*.h);;所有文件 (*)"), nullptr,
+                                                          QFileDialog::DontConfirmOverwrite);
+
+    if (!headerFileName.isEmpty() && !headerFileName.endsWith(".h", Qt::CaseInsensitive))
+    {
+        headerFileName += ".h";
+    }
+
+    if (!headerFileName.isEmpty() && QFile::exists(headerFileName))
+    {
+        QMessageBox::StandardButton reply = QMessageBox::question(this,
+                                                                  tr("确认覆盖"),
+                                                                  tr("文件 %1 已存在，是否覆盖?").arg(headerFileName),
+                                                                  QMessageBox::Yes | QMessageBox::No);
+
+        if (reply != QMessageBox::Yes)
+        {
+            return;
+        }
+    }
+
+    if (headerFileName.isEmpty())
+        return;
+
+    QFile headerFile(headerFileName);
+    if (headerFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream out(&headerFile);
+        out << headerCode;
+        headerFile.close();
+    }
+    else
+    {
+        qWarning() << "无法打开文件保存：" << headerFile.errorString();
+        // return;
+    }
+
+    // 收集所有菜单项数据
+    QList<MenuItemEditor::ItemData> items;
+    QJsonArray menuArray;
+    saveMenuTree(menuTree->topLevelItem(0), menuArray);
+    parseMenuTree(menuArray, items);
+
+    // 包含头文件
+    sourceCode += "#include \"menu_navigator.h\"\n";
+    sourceCode += "#include <cstdint>\n\n";
+
+    sourceCode += "using namespace Menu;\n\n";
+
+    // 生成结构体代码
+    sourceCode += "// 生成的变量定义\n";
+    sourceCode += CodeGenerator::generateStructCode(items);
+    sourceCode += "\n";
+
+    // 生成回调函数代码
+    sourceCode += "// 生成的回调函数和参数指针数组\n";
+    sourceCode += CodeGenerator::generateCallbackCode(items);
+    sourceCode += "\n";
+
+    // 生成菜单项代码
+    sourceCode += "// 生成的菜单项定义\n";
+    sourceCode += CodeGenerator::generateMenuCode(items);
+    sourceCode += "\n";
+
+    sourceCode += "#ifdef __cplusplus\n";
+    sourceCode += "extern \"C\" {\n";
+    sourceCode += "#endif\n\n";
+
+    sourceCode += "void* getMainItem()\n";
+    sourceCode += "{\n";
+    sourceCode += "return (void*)mainMenu;\n";
+    sourceCode += "}\n\n";
+
+    sourceCode += "#ifdef __cplusplus\n";
+    sourceCode += "}\n";
+    sourceCode += "#endif\n";
+
+    QString sourceFileName = QFileDialog::getSaveFileName(this,
+                                                          tr("保存源文件"), "generated_code.cpp",
+                                                          tr("CPP SourceFile (*.cpp);;所有文件 (*)"), nullptr,
+                                                          QFileDialog::DontConfirmOverwrite);
+
+    if (!sourceFileName.isEmpty() && !sourceFileName.endsWith(".cpp", Qt::CaseInsensitive))
+    {
+        sourceFileName += ".cpp";
+    }
+
+    if (!sourceFileName.isEmpty() && QFile::exists(sourceFileName))
+    {
+        QMessageBox::StandardButton reply = QMessageBox::question(this,
+                                                                  tr("确认覆盖"),
+                                                                  tr("文件 %1 已存在，是否覆盖?").arg(sourceFileName),
+                                                                  QMessageBox::Yes | QMessageBox::No);
+
+        if (reply != QMessageBox::Yes)
+        {
+            return;
+        }
+    }
+
+    if (sourceFileName.isEmpty())
+        return;
+
+    QFile sourceFile(sourceFileName);
+    if (sourceFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream out(&sourceFile);
+        out << sourceCode;
+        sourceFile.close();
+    }
+    else
+    {
+        qWarning() << "无法打开文件保存：" << sourceFile.errorString();
+    }
 }
 
 void MenuBuilderWindow::updateCodePreview(QString& code)
@@ -626,8 +890,9 @@ void MenuBuilderWindow::setupToolBar()
     mainToolBar->addAction(tr("删除项"), this, &MenuBuilderWindow::onRemoveItem);
 
     codeGenMenu = new QMenu(tr("生成代码"), this);
-    codeGenMenu->addAction(tr("生成C++代码 & 实时预览"), this, &MenuBuilderWindow::onGenerateCode);
-    // codeGenMenu->addAction(tr("生成C代码"), this, &MenuBuilderWindow::onGenerateCode);
+    codeGenMenu->addAction(tr("实时预览"), this, &MenuBuilderWindow::onUpdateEmulator);
+    codeGenMenu->addAction(tr("生成C++代码并保存"), this, &MenuBuilderWindow::onGenerateCppCode);
+    codeGenMenu->addAction(tr("生成C代码并保存"), this, &MenuBuilderWindow::onGenerateCCode);
 
     auto* codeGenButton = new QToolButton;
     codeGenButton->setMenu(codeGenMenu);

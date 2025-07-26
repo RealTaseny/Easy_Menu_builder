@@ -42,11 +42,13 @@ public:
             menuLib.unload();
 
         menuLib.setFileName(soPath);
-        if (menuLib.load()) {
+        if (menuLib.load())
+        {
             typedef Menu::Navigator* (*getNavigator)();
             getNavigator get_navigator = (getNavigator)menuLib.resolve("getNavigator");
 
-            if (get_navigator) {
+            if (get_navigator)
+            {
                 return get_navigator();
             }
             return new Menu::Navigator(nullptr);

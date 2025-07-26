@@ -498,8 +498,8 @@ namespace Menu
             else
             {
                 for (uint8_t i = 0; i < (current_menu_->children_count_ > MAX_DISPLAY_ITEM
-                                     ? MAX_DISPLAY_ITEM
-                                     : current_menu_->children_count_); i++)
+                                             ? MAX_DISPLAY_ITEM
+                                             : current_menu_->children_count_); i++)
                 {
                     if (current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::NORMAL)
                     {
@@ -530,7 +530,6 @@ namespace Menu
 
                 memset(str, '\0', sizeof(str));
             }
-
         }
     }
 

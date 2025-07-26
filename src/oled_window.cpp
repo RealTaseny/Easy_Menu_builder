@@ -11,9 +11,9 @@
 #include <QPushButton>
 #include <QTimer>
 
-Menu::Navigator *navigator = new Menu::Navigator(nullptr);
+Menu::Navigator* navigator = new Menu::Navigator(nullptr);
 
-OledWindow::OledWindow(QWidget* parent, MenuBuilderWindow *menuBuilderWindow)
+OledWindow::OledWindow(QWidget* parent, MenuBuilderWindow* menuBuilderWindow)
     : QMainWindow(parent)
 {
     m_menuBuilderWindow = menuBuilderWindow;
@@ -67,7 +67,7 @@ OledWindow::OledWindow(QWidget* parent, MenuBuilderWindow *menuBuilderWindow)
     });
 
     connect(this->m_menuBuilderWindow, &MenuBuilderWindow::menuStructureUpdated,
-        this, &OledWindow::updateMenu);
+            this, &OledWindow::updateMenu);
 
     auto* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, [this]()
@@ -93,7 +93,8 @@ OledWindow::OledWindow(QWidget* parent, MenuBuilderWindow *menuBuilderWindow)
 
 void OledWindow::updateMenu(const QList<MenuItemEditor::ItemData>& items) const
 {
-    if (navigator) {
+    if (navigator)
+    {
         delete navigator;
         navigator = nullptr;
     }

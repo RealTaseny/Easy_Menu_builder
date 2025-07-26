@@ -15,69 +15,61 @@ struct g_menu_variables_t
 
 
 // 生成的回调函数和参数指针数组
-void resetPID(void** args)
-{
+void resetPID(void** args) {
     /*  */
 }
 
-void savePIDParameter(void** args)
-{
+void savePIDParameter(void** args) {
     /*  */
 }
 
-void run_car_task1(void** args)
-{
+void run_car_task1(void** args) {
     /*  */
 }
 
-void run_car_task2(void** args)
-{
+void run_car_task2(void** args) {
     /*  */
 }
 
-void run_car_task3(void** args)
-{
+void run_car_task3(void** args) {
     /*  */
 }
 
-void allApp(void** args)
-{
+void allApp(void** args) {
     /*  */
 }
 
-void parameterApp(void** args)
-{
+void parameterApp(void** args) {
     /*  */
 }
 
-void savedstateApp(void** args)
-{
+void savedstateApp(void** args) {
     /*  */
 }
 
 // resetPID 回调函数参数指针数组
 void* pid_parameter_t[] = {
-    nullptr // 请自行添加参数指针
+       nullptr // 请自行添加参数指针
 };
 
 // run_car_task1 回调函数参数指针数组
 void* carTask_param_t[] = {
-    nullptr // 请自行添加参数指针
+       nullptr // 请自行添加参数指针
 };
 
 //  回调函数参数指针数组
 void* allAppArgs[] = {
-    nullptr // 请自行添加参数指针
+       nullptr // 请自行添加参数指针
 };
 
 //  回调函数参数指针数组
 void* parameterAppArgs[] = {
-    nullptr // 请自行添加参数指针
+       nullptr // 请自行添加参数指针
 };
 
 //  回调函数参数指针数组
 void* savedstateAppArgs[] = {
-    nullptr // 请自行添加参数指针
+       nullptr // 请自行添加参数指针
 };
 
 
@@ -127,15 +119,13 @@ menuItem* main_menuChildren[] = {
 
 menuItem* mainMenu = menuItem::createNormalItem("Main Menu", main_menuChildren, 4);
 
-
 #ifdef __cplusplus
-
 extern "C" {
 #endif
-Navigator* getNavigator()
-{
-    return new Navigator(mainMenu);
-}
+    void* getMainItem()
+    {
+        return (void*)mainMenu;
+    }
 #ifdef __cplusplus
-}
+    }
 #endif

@@ -25,7 +25,7 @@ public:
     ~MenuBuilderWindow() = default;
 
 signals:
-    void menuStructureUpdated(QList<MenuItemEditor::ItemData> &items);
+    void menuStructureUpdated(QList<MenuItemEditor::ItemData>& items);
 
 private slots:
     void onItemDataModified(const MenuItemEditor::ItemData& data);
@@ -34,7 +34,9 @@ private slots:
     void onAddItem();
     void onRemoveItem();
     void onItemSelected(QTreeWidgetItem* current);
-    void onGenerateCode();
+    void onUpdateEmulator();
+    void onGenerateCppCode();
+    void onGenerateCCode();
     void onSaveProject();
     void onLoadProject();
 

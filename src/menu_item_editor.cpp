@@ -218,17 +218,22 @@ void MenuItemEditor::onDataTypeChanged(int index)
     double maxVal = maxValueEdit->value();
     double initialVal = initialValueEdit->value();
 
-    if (minVal > maxVal) {
+    if (minVal > maxVal)
+    {
         minValueEdit->setValue(maxVal);
     }
 
-    if (initialVal < minVal && initialValueEdit->minimum() != minValueEdit->minimum()) {
+    if (initialVal < minVal && initialValueEdit->minimum() != minValueEdit->minimum())
+    {
         initialValueEdit->setValue(initialVal);
-    } else if (initialVal > maxVal) {
+    }
+    else if (initialVal > maxVal)
+    {
         initialValueEdit->setValue(maxVal);
     }
 
-    if (callbackCheck->isChecked() && typeCombo->currentText() == tr("Changeable")) {
+    if (callbackCheck->isChecked() && typeCombo->currentText() == tr("Changeable"))
+    {
         functionParamsLabel->setText(tr("const %1 value - 当前值").arg(dataType));
     }
 
@@ -259,25 +264,31 @@ void MenuItemEditor::setupConnections()
             this, &MenuItemEditor::emitModifiedData);
 
     connect(minValueEdit, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [this](double value) {
+            [this](double value)
+            {
                 // 确保最大值不小于最小值
-                if (maxValueEdit->value() < value) {
+                if (maxValueEdit->value() < value)
+                {
                     maxValueEdit->setValue(value);
                 }
                 // 确保初始值不小于最小值
-                if (initialValueEdit->value() < value) {
+                if (initialValueEdit->value() < value)
+                {
                     initialValueEdit->setValue(value);
                 }
             });
 
     connect(maxValueEdit, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            [this](double value) {
+            [this](double value)
+            {
                 // 确保最小值不大于最大值
-                if (minValueEdit->value() > value) {
+                if (minValueEdit->value() > value)
+                {
                     minValueEdit->setValue(value);
                 }
                 // 确保初始值不大于最大值
-                if (initialValueEdit->value() > value) {
+                if (initialValueEdit->value() > value)
+                {
                     initialValueEdit->setValue(value);
                 }
             });
@@ -302,8 +313,6 @@ void MenuItemEditor::setupConnections()
 
     connect(codePreviewButton, &QPushButton::clicked,
             this, &MenuItemEditor::onGenerateCodePreview);
-    connect(saveCodeButton, &QPushButton::clicked,
-            this, &MenuItemEditor::onSaveCodeToFile);
 }
 
 void MenuItemEditor::setItemData(const ItemData& data)
@@ -461,39 +470,6 @@ void MenuItemEditor::onGenerateCodePreview()
     codePreviewEdit->setText(previewCode);
 }
 
-void MenuItemEditor::onSaveCodeToFile()
-{
-    // 首先生成代码预览
-    onGenerateCodePreview();
-
-    // 获取要保存的代码
-    QString codeToSave = codePreviewEdit->toPlainText();
-    if (codeToSave.isEmpty())
-    {
-        QMessageBox::warning(this, tr("警告"), tr("没有生成任何代码可以保存！"));
-        return;
-    }
-
-    // 弹出文件保存对话框
-    QString filePath = QFileDialog::getSaveFileName(this,
-                                                    tr("保存代码文件"),
-                                                    QString(),
-                                                    tr("C++ 文件 (*.cpp *.h);;所有文件 (*)"));
-
-    if (!filePath.isEmpty())
-    {
-        // 使用代码生成器保存代码到文件
-        if (CodeGenerator::saveCodeToFile(filePath, codeToSave))
-        {
-            QMessageBox::information(this, tr("成功"), tr("代码已成功保存到文件！"));
-        }
-        else
-        {
-            QMessageBox::critical(this, tr("错误"), tr("保存代码到文件失败！"));
-        }
-    }
-}
-
 
 void MenuItemEditor::updateVisibility()
 {
@@ -600,7 +576,10 @@ void MenuItemEditor::setupUI()
     auto* changeableLayout = new QFormLayout(changeableWidget);
 
     dataTypeCombo = new QComboBox(changeableWidget);
-    dataTypeCombo->addItems({"uint8_t", "uint16_t", "uint32_t", "uint64_t", "int8_t", "int16_t", "int32_t", "int64_t", "float", "double", "bool"});
+    dataTypeCombo->addItems({
+        "uint8_t", "uint16_t", "uint32_t", "uint64_t", "int8_t", "int16_t", "int32_t", "int64_t", "float", "double",
+        "bool"
+    });
     changeableLayout->addRow(tr("数据类型:"), dataTypeCombo);
     connect(dataTypeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &MenuItemEditor::onDataTypeChanged);
@@ -658,10 +637,6 @@ void MenuItemEditor::setupUI()
     codePreviewEdit->setReadOnly(true);
     codePreviewEdit->setPlaceholderText(tr("代码预览将显示在这里"));
     layout->addRow(codePreviewEdit);
-
-    // 保存代码到文件按钮
-    saveCodeButton = new QPushButton(tr("保存代码到文件"), this);
-    layout->addRow(saveCodeButton);
 
     // 由于默认是普通类型，确保回调选项禁用
     callbackCheck->setChecked(false);

@@ -2,8 +2,8 @@
 // Created by taseny on 25-7-21.
 //
 
-#ifndef MENU_BUILDER_OLEDSIMULATOR_H
-#define MENU_BUILDER_OLEDSIMULATOR_H
+#ifndef OLED_SIMULATOR_H
+#define OLED_SIMULATOR_H
 
 #include <QWidget>
 #include <vector>
@@ -44,4 +44,4 @@ private:
     int m_pixelSize; // 单个像素的显示大小(用于放大显示)
 };
 
-#endif //MENU_BUILDER_OLEDSIMULATOR_H
+#endif //OLED_SIMULATOR_H

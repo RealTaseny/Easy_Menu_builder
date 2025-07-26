@@ -10,7 +10,6 @@ add_library(menu_navigator_lib
         src/menu_c_wrapper.cpp
 )
 
-target_include_directories(menu_navigator_lib   INTERFACE
-        include/menu_navigator.h
-        include/menu_c_wrapper.h
+target_include_directories(menu_navigator_lib   PUBLIC
+        include
 )

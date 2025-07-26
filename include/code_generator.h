@@ -26,10 +26,10 @@ public:
     static void generateMenuEmulatorHeader();
 
     static void generateChildrenArrayRecursive(const QString& parentName,
-                                    const QMap<QString, QList<MenuItemEditor::ItemData>>& childrenMap,
-                                    const QMap<QString, MenuItemEditor::ItemData>& itemMap,
-                                    QStringList& arrayCodeList,
-                                    QSet<QString>& generatedArrays);
+                                               const QMap<QString, QList<MenuItemEditor::ItemData>>& childrenMap,
+                                               const QMap<QString, MenuItemEditor::ItemData>& itemMap,
+                                               QStringList& arrayCodeList,
+                                               QSet<QString>& generatedArrays);
 
 private:
     // 生成变量声明

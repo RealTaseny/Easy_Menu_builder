@@ -2,11 +2,8 @@
 // Created by Taseny on 25-7-21.
 //
 
-#ifndef MENU_H
-#define MENU_H
-
-#include <memory>
-#include <cstring>
+#ifndef MENU_NAVIGATOR_H
+#define MENU_NAVIGATOR_H
 
 /**
  * Display API Define Zone
@@ -17,6 +14,11 @@
 /**
  * Display API Define Zone
  */
+
+#ifdef __cplusplus
+
+#include <memory>
+#include <cstring>
 
 namespace Menu
 {
@@ -164,4 +166,6 @@ namespace Menu
     };
 }
 
-#endif //MENU_H
+#endif
+
+#endif //MENU_NAVIGATOR_H
