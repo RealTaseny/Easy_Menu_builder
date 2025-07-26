@@ -7,10 +7,8 @@
 
 #pragma once
 
-#include <QWidget>
 #include <QLineEdit>
 #include <QComboBox>
-#include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QCheckBox>
 #include <QTextEdit>
@@ -19,7 +17,6 @@
 #include <QLabel>
 #include <QFileDialog>
 #include <QTimer>
-#include <QStyle>
 
 class MenuItemEditor : public QWidget
 {

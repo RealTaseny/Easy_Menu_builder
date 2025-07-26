@@ -4,19 +4,18 @@
 
 #include "menu_item_editor.h"
 #include "code_generator.h"
+
 #include <QFileDialog>
 #include <QMessageBox>
 
 MenuItemEditor::MenuItemEditor(QWidget* parent)
     : QWidget(parent)
 {
-    // 注册ItemData为Qt元类型，使其可以在QVariant中使用
     qRegisterMetaType<ItemData>("MenuItemEditor::ItemData");
 
     setupUI();
     setupConnections();
 
-    // 即时应用普通类型的禁用状态，不使用定时器
     QString currentType = typeCombo->currentText();
     if (currentType == tr("Normal"))
     {
@@ -25,14 +24,12 @@ MenuItemEditor::MenuItemEditor(QWidget* parent)
         callbackEdit->setVisible(false);
         functionParamsLabel->setVisible(false);
 
-        // 强制立即应用禁用样式
         callbackCheck->setStyleSheet("QCheckBox { color: gray; }");
         callbackCheck->style()->unpolish(callbackCheck);
         callbackCheck->style()->polish(callbackCheck);
         callbackCheck->update();
     }
 
-    // 确保初始状态下应用正确的UI状态
     onTypeChanged(typeCombo->currentIndex());
 }
 
@@ -40,23 +37,20 @@ void MenuItemEditor::onTypeChanged(int index)
 {
     QString currentType = typeCombo->currentText();
 
-    // 根据类型控制变量名输入框的可见性
     bool needsVarName = (currentType == tr("Changeable") || currentType == tr("bool"));
     varNameEdit->setVisible(needsVarName);
     varNameLabel->setVisible(needsVarName);
 
-    // 控制App专用输入框的可见性
     bool isAppType = (currentType == tr("Application"));
     appWidget->setVisible(isAppType);
 
-    // 对于普通类型，完全禁用回调
     if (currentType == tr("Normal"))
     {
         callbackCheck->setChecked(false);
         callbackCheck->setEnabled(false);
         callbackEdit->setVisible(false);
         functionParamsLabel->setVisible(false);
-        // 立即应用禁用样式
+
         callbackCheck->setStyleSheet("QCheckBox { color: gray; }");
         callbackCheck->style()->unpolish(callbackCheck);
         callbackCheck->style()->polish(callbackCheck);
@@ -64,24 +58,19 @@ void MenuItemEditor::onTypeChanged(int index)
     }
     else
     {
-        // 其他类型恢复正常样式
         callbackCheck->setStyleSheet("");
     }
 
-    // 检查当前类型是否支持回调
     bool supportsCallback = (currentType == tr("Changeable") || currentType == tr("bool"));
     bool isNormalType = (currentType == tr("Normal"));
 
-    // 普通类型和应用类型都不应该允许手动设置回调
     callbackCheck->setEnabled(supportsCallback);
 
-    // 对于普通类型，强制取消勾选
     if (isNormalType)
     {
         callbackCheck->setChecked(false);
     }
 
-    // 如果是应用类型，自动显示回调编辑框和参数提示，但禁用回调复选框
     if (currentType == tr("Application"))
     {
         callbackCheck->setChecked(true);
@@ -93,7 +82,6 @@ void MenuItemEditor::onTypeChanged(int index)
     }
     else
     {
-        // 其他类型根据是否支持回调显示
         if (!supportsCallback)
         {
             callbackCheck->setChecked(false);
@@ -105,7 +93,6 @@ void MenuItemEditor::onTypeChanged(int index)
             bool hasCallback = callbackCheck->isChecked();
             callbackEdit->setVisible(hasCallback);
 
-            // 根据类型设置不同的函数参数提示
             if (hasCallback)
             {
                 if (currentType == tr("Changeable"))
@@ -136,7 +123,6 @@ void MenuItemEditor::onDataTypeChanged(int index)
 {
     QString dataType = dataTypeCombo->currentText();
 
-    // 根据数据类型设置范围限制
     if (dataType == "uint8_t")
     {
         minValueEdit->setRange(0, 255);
@@ -228,26 +214,20 @@ void MenuItemEditor::onDataTypeChanged(int index)
         initialValueEdit->setDecimals(0);
     }
 
-    // 验证并校正当前值
     double minVal = minValueEdit->value();
     double maxVal = maxValueEdit->value();
     double initialVal = initialValueEdit->value();
 
-    // 确保最小值不大于最大值
     if (minVal > maxVal) {
         minValueEdit->setValue(maxVal);
     }
 
-    // 确保初始值在最小值和最大值之间
-    // 仅当初始值超出新范围时才调整，保留用户输入的初始值
     if (initialVal < minVal && initialValueEdit->minimum() != minValueEdit->minimum()) {
-        // 只有在范围变更时才调整初始值
         initialValueEdit->setValue(initialVal);
     } else if (initialVal > maxVal) {
         initialValueEdit->setValue(maxVal);
     }
 
-    // 更新回调函数参数提示
     if (callbackCheck->isChecked() && typeCombo->currentText() == tr("Changeable")) {
         functionParamsLabel->setText(tr("const %1 value - 当前值").arg(dataType));
     }
@@ -262,11 +242,9 @@ void MenuItemEditor::onDataChanged()
 
 void MenuItemEditor::setupConnections()
 {
-    // 类型改变时的连接
     connect(typeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &MenuItemEditor::onTypeChanged);
 
-    // 连接所有控件的数据变化信号
     connect(nameEdit, &QLineEdit::textChanged,
             this, &MenuItemEditor::emitModifiedData);
     connect(varNameEdit, &QLineEdit::textChanged,
@@ -280,7 +258,6 @@ void MenuItemEditor::setupConnections()
     connect(argsNameEdit, &QLineEdit::textChanged,
             this, &MenuItemEditor::emitModifiedData);
 
-    // 连接最小值和最大值的互动检查
     connect(minValueEdit, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             [this](double value) {
                 // 确保最大值不小于最小值
@@ -323,7 +300,6 @@ void MenuItemEditor::setupConnections()
     connect(callbackEdit, &QTextEdit::textChanged,
             this, &MenuItemEditor::emitModifiedData);
 
-    // 连接代码预览和保存按钮
     connect(codePreviewButton, &QPushButton::clicked,
             this, &MenuItemEditor::onGenerateCodePreview);
     connect(saveCodeButton, &QPushButton::clicked,
@@ -337,7 +313,6 @@ void MenuItemEditor::setItemData(const ItemData& data)
 
     currentData = data; // 保存当前数据
     isRootNode = data.isRoot;
-
 
     // 如果是根节点，固定显示"Main Menu"，否则显示实际名称
     if (isRootNode)

@@ -5,17 +5,18 @@
 // main.cpp
 #include <QApplication>
 
-#include "main_window.h"
+#include "oled_window.h"
 #include "menu_builder_window.h"
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
 
-    MainWindow mainWindow;
-    MenuBuilderWindow menuBuilderWindow;
-    mainWindow.show();
-    menuBuilderWindow.show();
+    MenuBuilderWindow menu_builder_window;
+    OledWindow oled_window(&menu_builder_window, &menu_builder_window);
+
+    oled_window.show();
+    menu_builder_window.show();
 
     return app.exec();
 }

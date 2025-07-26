@@ -10,10 +10,7 @@
 #include <QMainWindow>
 #include <QTreeWidget>
 #include <QDockWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
 #include <QToolBar>
-#include <QMenu>
 #include <QMenuBar>
 #include <QStack>
 #include <QStandardItemModel>
@@ -26,6 +23,9 @@ class MenuBuilderWindow : public QMainWindow
 public:
     explicit MenuBuilderWindow(QWidget* parent = nullptr);
     ~MenuBuilderWindow() = default;
+
+signals:
+    void menuStructureUpdated(QList<MenuItemEditor::ItemData> &items);
 
 private slots:
     void onItemDataModified(const MenuItemEditor::ItemData& data);

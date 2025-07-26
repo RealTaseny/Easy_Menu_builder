@@ -2,42 +2,41 @@
 // Created by taseny on 25-7-21.
 //
 
-#include "main_window.h"
-#include "cpp_playground.h"
+#include "oled_window.h"
+#include "menu_builder_window.h"
+#include "menu_navigator.h"
+#include "runtime_menu_builder.hpp"
+
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QPushButton>
 #include <QTimer>
 
-MainWindow::MainWindow(QWidget* parent)
+Menu::Navigator *navigator = new Menu::Navigator(nullptr);
+
+OledWindow::OledWindow(QWidget* parent, MenuBuilderWindow *menuBuilderWindow)
     : QMainWindow(parent)
 {
-    // 创建中心窗口
+    m_menuBuilderWindow = menuBuilderWindow;
+
     auto centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
-    // 创建主布局
     auto mainLayout = new QVBoxLayout(centralWidget);
 
-    // 创建OLED模拟器
-    m_oled = new OLEDSimulator(this);
+    m_oled = new OledSimulator(this);
     mainLayout->addWidget(m_oled);
 
-    // 创建按钮布局
     auto buttonLayout = new QHBoxLayout();
     mainLayout->addLayout(buttonLayout);
 
-    // 创建按钮容器
     auto buttonContainer = new QWidget();
     auto buttonGridLayout = new QGridLayout(buttonContainer);
 
-    // 创建四个方向按钮
     auto upButton = new QPushButton("↑");
     auto downButton = new QPushButton("↓");
     auto leftButton = new QPushButton("←");
     auto rightButton = new QPushButton("→");
 
-    // 设置按钮布局
     buttonGridLayout->addWidget(upButton, 0, 1);
     buttonGridLayout->addWidget(leftButton, 1, 0);
     buttonGridLayout->addWidget(rightButton, 1, 2);
@@ -47,7 +46,6 @@ MainWindow::MainWindow(QWidget* parent)
     buttonLayout->addWidget(buttonContainer);
     buttonLayout->addStretch();
 
-    // 连接按钮信号
     connect(upButton, &QPushButton::clicked, this, [this]()
     {
         navigator->handleInput(Menu::keyValue::UP);
@@ -68,12 +66,16 @@ MainWindow::MainWindow(QWidget* parent)
         navigator->handleInput(Menu::keyValue::RIGHT);
     });
 
+    connect(this->m_menuBuilderWindow, &MenuBuilderWindow::menuStructureUpdated,
+        this, &OledWindow::updateMenu);
 
-    // 设置定时器更新显示
     auto* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, [this]()
     {
         static char* display_buffer;
+
+        if (navigator == nullptr)
+            return;
 
         navigator->refreshDisplay();
 
@@ -87,4 +89,16 @@ MainWindow::MainWindow(QWidget* parent)
         }
     });
     timer->start(50);
+}
+
+void OledWindow::updateMenu(const QList<MenuItemEditor::ItemData>& items) const
+{
+    if (navigator) {
+        delete navigator;
+        navigator = nullptr;
+    }
+
+    navigator = RuntimeMenuBuilder::buildMenu(items);
+
+    m_oled->clear();
 }

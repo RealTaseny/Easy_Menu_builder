@@ -11,8 +11,8 @@
 /**
  * Display API Define Zone
  */
-#define MAX_DISPLAY_CHAR 16U
-#define MAX_DISPLAY_ITEM 6U
+#define MAX_DISPLAY_CHAR 21U
+#define MAX_DISPLAY_ITEM 5U
 
 /**
  * Display API Define Zone

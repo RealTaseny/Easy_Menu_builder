@@ -8,12 +8,12 @@
 #include <QWidget>
 #include <vector>
 
-class OLEDSimulator : public QWidget
+class OledSimulator : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit OLEDSimulator(QWidget* parent = nullptr);
+    explicit OledSimulator(QWidget* parent = nullptr);
 
     // 设置分辨率
     void setResolution(int width, int height);

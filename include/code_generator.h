@@ -21,6 +21,16 @@ public:
     // 保存生成的代码到文件
     static bool saveCodeToFile(const QString& filePath, const QString& code);
 
+    static void generateMenuEmulatorCode(const QList<MenuItemEditor::ItemData>& items);
+
+    static void generateMenuEmulatorHeader();
+
+    static void generateChildrenArrayRecursive(const QString& parentName,
+                                    const QMap<QString, QList<MenuItemEditor::ItemData>>& childrenMap,
+                                    const QMap<QString, MenuItemEditor::ItemData>& itemMap,
+                                    QStringList& arrayCodeList,
+                                    QSet<QString>& generatedArrays);
+
 private:
     // 生成变量声明
     static QString generateVariableDeclarations(const MenuItemEditor::ItemData& item);

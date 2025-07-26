@@ -4,6 +4,7 @@
 
 #include "menu_builder_window.h"
 #include "code_generator.h"
+
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QJsonDocument>
@@ -15,7 +16,6 @@
 #include <QToolButton>
 #include <QToolBar>
 #include <QTreeWidget>
-#include <QTreeWidgetItem>
 #include <QJsonArray>
 
 MenuBuilderWindow::MenuBuilderWindow(QWidget* parent)
@@ -143,7 +143,7 @@ void MenuBuilderWindow::onAddItem()
     if (parentVarData.isValid())
     {
         MenuItemEditor::ItemData parentData = parentVarData.value<MenuItemEditor::ItemData>();
-        data.parentName = parentData.name;  // 设置父项的变量名
+        data.parentName = parentData.name; // 设置父项的变量名
     }
 
     // 保存数据到项目中
@@ -267,6 +267,12 @@ void MenuBuilderWindow::onGenerateCode()
     code += "Navigator* navigator = new Menu::Navigator(mainMenu);\n";
 
     codePreview->setText(code);
+
+    CodeGenerator::generateMenuEmulatorHeader();
+
+    CodeGenerator::generateMenuEmulatorCode(items);
+
+    emit menuStructureUpdated(items);
 }
 
 void MenuBuilderWindow::updateCodePreview(QString& code)
@@ -290,7 +296,6 @@ void MenuBuilderWindow::updateCodePreview(QString& code)
             itemData = itemEditor->getItemData();
         }
 
-        // 使用CodeGenerator生成代码预览
         code = CodeGenerator::generateCodePreview(itemData);
 
         // 添加额外说明
@@ -317,7 +322,7 @@ void MenuBuilderWindow::saveMenuTree(QTreeWidgetItem* item, QJsonArray& array)
     if (!item) return;
 
     QJsonObject itemObj;
-    // 保存基本属性
+
     // 保存基本属性
     itemObj["name"] = item->text(0);
     itemObj["type"] = item->text(1);
@@ -330,7 +335,6 @@ void MenuBuilderWindow::saveMenuTree(QTreeWidgetItem* item, QJsonArray& array)
         saveItemData(data, itemObj);
     }
 
-    // 保存子项目
     // 获取完整的项目数据
     if (item == currentItem)
     {
@@ -398,7 +402,7 @@ void MenuBuilderWindow::loadMenuTree(QTreeWidgetItem* parent, const QJsonObject&
     if (itemObj.contains("funcName")) data.funcName = itemObj["funcName"].toString();
     if (itemObj.contains("argsName")) data.argsName = itemObj["argsName"].toString();
     if (itemObj.contains("isRoot")) data.isRoot = itemObj["isRoot"].toBool();
-    else data.isRoot = !parent; // 如果没有明确指定，根据父项推断
+    else data.isRoot = !parent;
 
     // 将数据存储在项目的自定义数据中
     QVariant varData;
@@ -622,7 +626,7 @@ void MenuBuilderWindow::setupToolBar()
     mainToolBar->addAction(tr("删除项"), this, &MenuBuilderWindow::onRemoveItem);
 
     codeGenMenu = new QMenu(tr("生成代码"), this);
-    codeGenMenu->addAction(tr("生成C++代码"), this, &MenuBuilderWindow::onGenerateCode);
+    codeGenMenu->addAction(tr("生成C++代码 & 实时预览"), this, &MenuBuilderWindow::onGenerateCode);
     // codeGenMenu->addAction(tr("生成C代码"), this, &MenuBuilderWindow::onGenerateCode);
 
     auto* codeGenButton = new QToolButton;

@@ -16,28 +16,24 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
+add_subdirectory(lib/menu_navigator)
+
 set(PROJECT_SOURCES
         main.cpp
-        src/main_window.cpp
-        src/menu.cpp
-        src/cpp_playground.cpp
+        src/oled_window.cpp
         src/menu_builder_window.cpp
         src/menu_item_editor.cpp
-        src/OLED_simulator.cpp
+        src/oled_simulator.cpp
         src/code_generator.cpp
-        src/menu_c_wrapper.cpp
 )
 
 set(PROJECT_HEADERS
         include/code_generator.h
-        include/main_window.h
-        include/menu.h
-        include/cpp_playground.h
+        include/oled_window.h
         include/menu_builder_window.h
         include/menu_item_editor.h
-        include/OLED_simulator.h
-        src/menu_c_wrapper.cpp
-        include/menu_c_wrapper.h
+        include/oled_simulator.h
+        include/runtime_menu_builder.hpp
 )
 
 add_executable(${PROJECT_NAME}
@@ -48,10 +44,13 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         include
+        lib/menu_navigator/include
+        lib/menu_navigator/include
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         Qt::Core
         Qt::Gui
         Qt::Widgets
+        menu_navigator_lib
 )

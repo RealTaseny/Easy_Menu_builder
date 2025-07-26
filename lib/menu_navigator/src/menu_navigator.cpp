@@ -5,7 +5,7 @@
 #include <cstring>
 #include <string>
 
-#include "menu.h"
+#include "../include/menu_navigator.h"
 
 namespace Menu
 {
@@ -251,6 +251,7 @@ namespace Menu
             default:
                 break;
             }
+            return;
         }
 
         menuItem* point_item = current_menu_->children_item_[selected_index_];
@@ -451,40 +452,85 @@ namespace Menu
 
     void Navigator::refreshDisplay()
     {
+        if (this->current_menu_ == nullptr)
+        {
+            memset(display_buffer_, '\0', MAX_DISPLAY_CHAR * MAX_DISPLAY_ITEM);
+            std::snprintf(display_buffer_, MAX_DISPLAY_CHAR * MAX_DISPLAY_ITEM, "No Menu Item");
+            return;
+        }
+
         static char str[MAX_DISPLAY_CHAR] = {0};
         if (!in_app_mode_)
         {
-            for (uint8_t i = 0; i < (MAX_DISPLAY_ITEM <= current_menu_->children_count_
-                                         ? MAX_DISPLAY_ITEM
-                                         : current_menu_->children_count_); ++i)
+            if (current_menu_->children_count_ - first_visible_item_ < MAX_DISPLAY_ITEM)
             {
-                if (current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::NORMAL)
+                for (uint8_t i = 0; i < (current_menu_->children_count_ % MAX_DISPLAY_ITEM); i++)
                 {
-                    std::snprintf(&display_buffer_[i * MAX_DISPLAY_CHAR], MAX_DISPLAY_CHAR, "%s%s",
-                                  selected_index_ - first_visible_item_ == i ? "->" : "  ",
-                                  current_menu_->children_item_[i + first_visible_item_]->item_name_);
-                }
-                else if (current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::CHANGEABLE
-                    ||
-                    current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::TOGGLE)
-                {
-                    if (current_menu_->children_item_[i + first_visible_item_]->is_locked == true)
+                    if (current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::NORMAL)
                     {
-                        current_menu_->children_item_[i + first_visible_item_]->getValueStr(str, MAX_DISPLAY_CHAR);
-                        std::snprintf(&display_buffer_[i * MAX_DISPLAY_CHAR], MAX_DISPLAY_CHAR, "%s%s: %s",
+                        std::snprintf(&display_buffer_[i * MAX_DISPLAY_CHAR], MAX_DISPLAY_CHAR, "%s%s",
                                       selected_index_ - first_visible_item_ == i ? "->" : "  ",
-                                      current_menu_->children_item_[i + first_visible_item_]->item_name_, str);
+                                      current_menu_->children_item_[i + first_visible_item_]->item_name_);
                     }
-                    else
+                    else if (current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::CHANGEABLE
+                        ||
+                        current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::TOGGLE)
                     {
-                        current_menu_->children_item_[i + first_visible_item_]->getValueStr(str, MAX_DISPLAY_CHAR);
-                        std::snprintf(&display_buffer_[i * MAX_DISPLAY_CHAR], MAX_DISPLAY_CHAR, "%s%s: %s",
-                                      selected_index_ - first_visible_item_ == i ? ">>" : "  ",
-                                      current_menu_->children_item_[i + first_visible_item_]->item_name_, str);
+                        if (current_menu_->children_item_[i + first_visible_item_]->is_locked == true)
+                        {
+                            current_menu_->children_item_[i + first_visible_item_]->getValueStr(str, MAX_DISPLAY_CHAR);
+                            std::snprintf(&display_buffer_[i * MAX_DISPLAY_CHAR], MAX_DISPLAY_CHAR, "%s%s: %s",
+                                          selected_index_ - first_visible_item_ == i ? "->" : "  ",
+                                          current_menu_->children_item_[i + first_visible_item_]->item_name_, str);
+                        }
+                        else
+                        {
+                            current_menu_->children_item_[i + first_visible_item_]->getValueStr(str, MAX_DISPLAY_CHAR);
+                            std::snprintf(&display_buffer_[i * MAX_DISPLAY_CHAR], MAX_DISPLAY_CHAR, "%s%s: %s",
+                                          selected_index_ - first_visible_item_ == i ? ">>" : "  ",
+                                          current_menu_->children_item_[i + first_visible_item_]->item_name_, str);
+                        }
                     }
                 }
+
+                memset(str, '\0', sizeof(str));
             }
-            memset(str, '\0', sizeof(str));
+            else
+            {
+                for (uint8_t i = 0; i < (current_menu_->children_count_ > MAX_DISPLAY_ITEM
+                                     ? MAX_DISPLAY_ITEM
+                                     : current_menu_->children_count_); i++)
+                {
+                    if (current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::NORMAL)
+                    {
+                        std::snprintf(&display_buffer_[i * MAX_DISPLAY_CHAR], MAX_DISPLAY_CHAR, "%s%s",
+                                      selected_index_ - first_visible_item_ == i ? "->" : "  ",
+                                      current_menu_->children_item_[i + first_visible_item_]->item_name_);
+                    }
+                    else if (current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::CHANGEABLE
+                        ||
+                        current_menu_->children_item_[i + first_visible_item_]->type_ == menuItemType::TOGGLE)
+                    {
+                        if (current_menu_->children_item_[i + first_visible_item_]->is_locked == true)
+                        {
+                            current_menu_->children_item_[i + first_visible_item_]->getValueStr(str, MAX_DISPLAY_CHAR);
+                            std::snprintf(&display_buffer_[i * MAX_DISPLAY_CHAR], MAX_DISPLAY_CHAR, "%s%s: %s",
+                                          selected_index_ - first_visible_item_ == i ? "->" : "  ",
+                                          current_menu_->children_item_[i + first_visible_item_]->item_name_, str);
+                        }
+                        else
+                        {
+                            current_menu_->children_item_[i + first_visible_item_]->getValueStr(str, MAX_DISPLAY_CHAR);
+                            std::snprintf(&display_buffer_[i * MAX_DISPLAY_CHAR], MAX_DISPLAY_CHAR, "%s%s: %s",
+                                          selected_index_ - first_visible_item_ == i ? ">>" : "  ",
+                                          current_menu_->children_item_[i + first_visible_item_]->item_name_, str);
+                        }
+                    }
+                }
+
+                memset(str, '\0', sizeof(str));
+            }
+
         }
     }
 
