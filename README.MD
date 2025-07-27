@@ -1,6 +1,9 @@
 # Easy Menu Builder
 
-> RELEASE VERSION V1.0
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Qt 6](https://img.shields.io/badge/Powered%20by-Qt6-blue)](https://www.qt.io)
+[![Platform](https://img.shields.io/badge/Platform-C%2B%2B%20%2F%20C-green)](#)
+[![Version](https://img.shields.io/badge/Release-V1.0-orange)](#)
 
 > 快速构建基于 OLED 显示器的菜单导航系统
 
@@ -157,6 +160,6 @@ void menu_set_app_mode(void* navigator, uint8_t mode);    // 设置应用标志�
 
 欢迎反馈问题与建议
 
-> 如果本项目对你有帮助的话还请您帮忙点一下 :start:
+> 如果本项目对你有帮助的话还请您帮忙点一下 :star:
 
 ---
