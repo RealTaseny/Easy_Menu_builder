@@ -19,14 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-This software uses the Qt 6 framework under the terms of the GNU Lesser General Public License v3 (LGPLv3).
-
-Qt libraries are dynamically linked to this software. In accordance with LGPLv3 requirements,
-users are allowed to replace the Qt shared libraries with their own compatible versions.
-
-You can obtain a copy of the LGPL license at: https://www.gnu.org/licenses/lgpl-3.0.html
-
-You can obtain the Qt source code from: https://download.qt.io/official_releases/qt/
