@@ -18,7 +18,7 @@ public:
     ~OledWindow() = default;
 
 private slots:
-    void updateMenu(const QList<MenuItemEditor::ItemData>& items) const;
+    void updateMenu() const;
 
 private:
     MenuBuilderWindow* m_menuBuilderWindow;

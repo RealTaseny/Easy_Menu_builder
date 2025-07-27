@@ -145,6 +145,12 @@ namespace Menu
 
         char* getDisplayBuffer()
         {
+            static char error_str[] = "No Menu Item";
+
+            if (current_menu_ == nullptr) return error_str;
+
+            if (current_menu_->children_item_ == nullptr) return error_str;
+
             return display_buffer_;
         }
 

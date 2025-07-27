@@ -91,7 +91,7 @@ OledWindow::OledWindow(QWidget* parent, MenuBuilderWindow* menuBuilderWindow)
     timer->start(50);
 }
 
-void OledWindow::updateMenu(const QList<MenuItemEditor::ItemData>& items) const
+void OledWindow::updateMenu() const
 {
     if (navigator)
     {
@@ -99,7 +99,7 @@ void OledWindow::updateMenu(const QList<MenuItemEditor::ItemData>& items) const
         navigator = nullptr;
     }
 
-    navigator = RuntimeMenuBuilder::buildMenu(items);
+    navigator = RuntimeMenuBuilder::buildMenu();
 
     m_oled->clear();
 }

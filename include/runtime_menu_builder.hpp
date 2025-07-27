@@ -10,50 +10,78 @@
 #include <QProcess>
 #include <QDebug>
 #include <QLibrary>
+#include <QtGlobal>
+#include <QApplication>
+
+extern QString appDir;
 
 class RuntimeMenuBuilder
 {
 public:
-    static Menu::Navigator* buildMenu(const QList<MenuItemEditor::ItemData>& items)
-    {
-        QString buildDir = "/tmp/menu_build";
-        QString soPath = buildDir + "/libmenu_emulator_lib.so";
-        QString projectDir = "/home/taseny/Easy_Menu_Builder/lib/menu_emulator_lib";
-
-        QDir().mkpath(buildDir);
-        QFile::remove(soPath);
-
-        QProcess cmake;
-        cmake.setWorkingDirectory(buildDir);
-        cmake.start("cmake", QStringList() << projectDir);
-        cmake.waitForFinished(-1);
-        qDebug() << "CMake Output:\n" << cmake.readAllStandardOutput();
-        qDebug() << "CMake Error:\n" << cmake.readAllStandardError();
-
-        QProcess make;
-        make.setWorkingDirectory(buildDir);
-        make.start("make");
-        make.waitForFinished(-1);
-        qDebug() << "Make Output:\n" << make.readAllStandardOutput();
-        qDebug() << "Make Error:\n" << make.readAllStandardError();
-
-        static QLibrary menuLib(soPath);
-        if (menuLib.isLoaded())
-            menuLib.unload();
-
-        menuLib.setFileName(soPath);
-        if (menuLib.load())
+        static Menu::Navigator* buildMenu()
         {
-            typedef Menu::Navigator* (*getNavigator)();
-            getNavigator get_navigator = (getNavigator)menuLib.resolve("getNavigator");
+        	static QLibrary menuLib;
+            QString buildDir;
+            QString libFile;
+            QString projectDir;
 
-            if (get_navigator)
+        	projectDir = appDir + "/../lib/menu_emulator_lib";
+
+        	buildDir = projectDir + "/build";
+
+#if defined(Q_OS_WIN)
+            libFile = buildDir + "/libmenu_emulator_lib.dll";
+#elif defined(Q_OS_LINUX)
+            libFile = buildDir + "/libmenu_emulator_lib.so";
+#endif
+
+        	if (menuLib.isLoaded())
+        		menuLib.unload();
+
+        	QDir().rmdir(buildDir);
+        	QDir().mkpath(buildDir);
+
+            QFile::remove(libFile);
+
+            QProcess cmake;
+            cmake.setWorkingDirectory(buildDir);
+
+#if defined(Q_OS_WIN)
+        	cmake.start("cmake", QStringList() << projectDir << "-G" << "MinGW Makefiles" << "-DCMAKE_BUILD_TYPE=Release" );
+#elif defined(Q_OS_LINUX)
+        	cmake.start("cmake", QStringList() << projectDir << "-DCMAKE_BUILD_TYPE=Release");
+#endif
+
+        	cmake.waitForFinished(-1);
+
+            QProcess build;
+            build.setWorkingDirectory(buildDir);
+
+#if defined(Q_OS_WIN)
+            build.start("cmake", QStringList() << "--build" << ".");
+#else
+            build.start("make");
+#endif
+
+           build.waitForFinished(-1);
+
+            menuLib.setFileName(libFile);
+            if (menuLib.load())
             {
-                return get_navigator();
+                typedef Menu::Navigator* (*getNavigator)();
+                getNavigator get_navigator = (getNavigator)menuLib.resolve("getNavigator");
+
+                if (get_navigator)
+                    return get_navigator();
+                else
+                    qWarning() << "Failed to resolve symbol: getNavigator";
+            } else {
+                qWarning() << "Failed to load dynamic lib:" << libFile;
             }
+
             return new Menu::Navigator(nullptr);
         }
-    }
+
 };
 
 #endif //RUNTIME_MENU_BUILDER_HPP

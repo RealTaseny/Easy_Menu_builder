@@ -8,6 +8,8 @@
 #include <QTextStream>
 #include <QDebug>
 
+extern QString appDir;
+
 QString CodeGenerator::generateStructCode(const QList<MenuItemEditor::ItemData>& items)
 {
     QString code = "";
@@ -62,7 +64,7 @@ QString CodeGenerator::generateMenuCode(const QList<MenuItemEditor::ItemData>& i
         int rootChildCount = childrenMap.contains(rootName) ? childrenMap[rootName].size() : 0;
         code += QString("menuItem* mainMenu = menuItem::createNormalItem(\"%1\", %2, %3);\n")
                 .arg(rootName)
-                .arg(mainChildrenArrayName)
+                .arg(rootChildCount != 0 ? mainChildrenArrayName : "nullptr")
                 .arg(rootChildCount);
     }
 
@@ -434,7 +436,7 @@ void CodeGenerator::generateMenuEmulatorCode(const QList<MenuItemEditor::ItemDat
     code +=
         "\n #ifdef __cplusplus\n \n extern \"C\" {\n #endif\n Navigator* getNavigator() \n { \n return new Navigator(mainMenu); \n }\n #ifdef __cplusplus \n }\n #endif\n\n";
 
-    QString cppFilePath = "/home/taseny/Easy_Menu_Builder/lib/menu_emulator_lib/src/generated_code.cpp";
+    QString cppFilePath = appDir + "/../lib/menu_emulator_lib/src/generated_code.cpp";
 
     QFile cppFile(cppFilePath);
     if (cppFile.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -469,7 +471,7 @@ void CodeGenerator::generateMenuEmulatorHeader()
     code += "#endif\n\n";
     code += "#endif //GENERATED_CODE_H\n";
 
-    QString headerFilePath = "/home/taseny/Easy_Menu_Builder/lib/menu_emulator_lib/include/generated_code.h";
+    QString headerFilePath = appDir + "/../lib/menu_emulator_lib/include/generated_code.h";
 
     QFile headerFile(headerFilePath);
     if (headerFile.open(QIODevice::WriteOnly | QIODevice::Text))

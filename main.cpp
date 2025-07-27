@@ -8,9 +8,13 @@
 #include "oled_window.h"
 #include "menu_builder_window.h"
 
+QString appDir = "";
+
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
+
+    appDir = QCoreApplication::applicationDirPath();
 
     MenuBuilderWindow menu_builder_window;
     OledWindow oled_window(&menu_builder_window, &menu_builder_window);

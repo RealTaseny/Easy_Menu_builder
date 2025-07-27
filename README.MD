@@ -154,6 +154,35 @@ void menu_set_app_mode(void* navigator, uint8_t mode);    // 设置应用标志�
 
 ---
 
+## 部署
+
+### 1.Windows 下部署
+
+- 安装Qt for windows依赖
+- 配置CMake环境变量
+- 配置MinGW环境变量
+
+```shell
+# 1. 配置
+cmake -S . -B build -G "MinGW Makefiles"
+
+# 2. 构建
+cmake --build build --config Release
+
+# 3. 安装导出打包文件
+cmake --install build --prefix build/output
+
+# 4. 复制库文件
+copy -r ./lib ./build/output/
+
+# 5. 使用windeployqt工具部署依赖项
+cd build/output/bin
+
+windeployqt6 ./Menu_builder.exe
+
+# 6.使用封包工具自行封包
+```
+
 ## 👨‍💻 作者
 
 **Taseny**

@@ -5,7 +5,7 @@
 #include <cstring>
 #include <string>
 
-#include "../include/menu_navigator.h"
+#include "menu_navigator.h"
 
 namespace Menu
 {
@@ -241,6 +241,10 @@ namespace Menu
 
     void Navigator::handleInput(const keyValue& key_value)
     {
+        if (this->current_menu_ == nullptr) return;
+
+        if (this->current_menu_->children_item_ == nullptr) return;
+
         if (in_app_mode_)
         {
             switch (key_value)
@@ -452,12 +456,7 @@ namespace Menu
 
     void Navigator::refreshDisplay()
     {
-        if (this->current_menu_ == nullptr)
-        {
-            memset(display_buffer_, '\0', MAX_DISPLAY_CHAR * MAX_DISPLAY_ITEM);
-            std::snprintf(display_buffer_, MAX_DISPLAY_CHAR * MAX_DISPLAY_ITEM, "No Menu Item");
-            return;
-        }
+        if (this->current_menu_ == nullptr) return;
 
         static char str[MAX_DISPLAY_CHAR] = {0};
         if (!in_app_mode_)
