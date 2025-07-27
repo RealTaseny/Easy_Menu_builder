@@ -13,7 +13,7 @@
 
 Menu::Navigator* navigator = new Menu::Navigator(nullptr);
 
-OledWindow::OledWindow(QWidget* parent, MenuBuilderWindow* menuBuilderWindow)
+OledWindow::OledWindow(QWidget* parent, MenuBuilderWindow* menuBuilderWindow, int width, int height, int pixelSize)
     : QMainWindow(parent)
 {
     m_menuBuilderWindow = menuBuilderWindow;
@@ -23,7 +23,7 @@ OledWindow::OledWindow(QWidget* parent, MenuBuilderWindow* menuBuilderWindow)
 
     auto mainLayout = new QVBoxLayout(centralWidget);
 
-    m_oled = new OledSimulator(this);
+    m_oled = new OledSimulator(this, width, height, pixelSize);
     mainLayout->addWidget(m_oled);
 
     auto buttonLayout = new QHBoxLayout();

@@ -14,7 +14,7 @@ class OledWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    OledWindow(QWidget* parent = nullptr, MenuBuilderWindow* menuBuilderWindow = nullptr);
+    OledWindow(QWidget* parent = nullptr, MenuBuilderWindow* menuBuilderWindow = nullptr, int width = 128, int height = 64, int pixelSize = 2);
     ~OledWindow() = default;
 
 private slots:

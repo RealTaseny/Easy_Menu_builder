@@ -13,7 +13,7 @@ class OledSimulator : public QWidget
     Q_OBJECT
 
 public:
-    explicit OledSimulator(QWidget* parent = nullptr);
+    explicit OledSimulator(QWidget* parent = nullptr, int width = 128, int height = 64, int pixelSize = 1);
 
     // 设置分辨率
     void setResolution(int width, int height);

@@ -7,11 +7,11 @@
 #include <QPainter>
 #include <QFont>
 
-OledSimulator::OledSimulator(QWidget* parent)
+OledSimulator::OledSimulator(QWidget* parent, int width, int height, int pixelSize)
     : QWidget(parent)
-      , m_width(128)
-      , m_height(64)
-      , m_pixelSize(2)
+      , m_width(width)
+      , m_height(height)
+      , m_pixelSize(pixelSize)
 {
     setResolution(m_width, m_height);
 

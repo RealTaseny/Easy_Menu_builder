@@ -152,6 +152,14 @@ uint8_t menu_get_app_mode(void* navigator);   // 获取当前应用是否运行�
 void menu_set_app_mode(void* navigator, uint8_t mode);    // 设置应用标志位
 ```
 
+### OLED模拟器
+
+默认是128*64分辨率 2倍缩放, 可由程序传入实参控制
+
+格式:
+
+> WIDTH * HEIGHT * SCALE
+
 ---
 
 ## 部署
